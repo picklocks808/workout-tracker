@@ -4,46 +4,41 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Workout Tracker</title>
 <style>
-  body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; background: #121212; color: #fff; }
-  h1 { text-align: center; margin-bottom: 10px; color: #9b59b6; }
-  ul { list-style: none; padding: 0; margin: 0; }
-  li { display: flex; align-items: center; gap: 10px; margin: 6px 0; padding: 4px 8px; border-radius: 6px; }
-  li.header { font-weight: bold; border-bottom: 2px solid #fff; }
-  input[type="number"], input[type="text"], select { width: 60px; text-align: center; border-radius: 4px; border: 1px solid #666; background: #222; color: #fff; }
-  input[type="text"] { flex: 1; }
-  button { padding: 8px 16px; border: none; border-radius: 8px; background: #9b59b6; color: #fff; cursor: pointer; }
-  .small-btn { padding: 4px 8px; font-size: 14px; border-radius: 6px; cursor: pointer; }
-  .add-btn { background: #2ecc71; color: #fff; }
-  .calculator { border: 1px solid #444; padding: 15px; margin-bottom: 20px; border-radius: 8px; }
-  .calculator label { margin-right: 5px; }
-  .calculator div { margin: 8px 0; }
-  #caloriesOutput { font-weight: bold; margin-top: 10px; }
-  .days { display: flex; justify-content: space-between; margin-bottom: 10px; }
-  .day-btn { flex: 1; margin: 2px; padding: 6px 0; border-radius: 6px; border: none; cursor: pointer; color: #fff; }
-  .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; }
-  .modal-content { background:#222; padding:20px; border-radius:8px; width:90%; max-width:400px; max-height:80%; overflow:auto; }
-  .modal h3 { margin-top:0; }
-  .modal label { display:block; margin:6px 0; }
-  .backup-buttons { display:flex; gap:10px; margin-top:10px; flex-wrap: wrap; }
+body { font-family:sans-serif; max-width:650px; margin:auto; padding:20px; background:#121212; color:#fff; }
+h1 { text-align:center; color:#9b59b6; margin-bottom:10px; }
+ul { list-style:none; padding:0; margin:0; }
+li { display:flex; align-items:center; gap:10px; margin:6px 0; padding:4px 8px; border-radius:6px; }
+li.header { font-weight:bold; border-bottom:2px solid #fff; background:#222; }
+input[type="number"], input[type="text"], select { width:60px; text-align:center; border-radius:4px; border:1px solid #666; background:#222; color:#fff; }
+input[type="text"] { flex:1; }
+button { padding:6px 12px; border:none; border-radius:8px; background:#9b59b6; color:#fff; cursor:pointer; }
+.small-btn { padding:4px 8px; font-size:14px; border-radius:6px; cursor:pointer; }
+.add-btn { background:#2ecc71; color:#fff; }
+.calculator { border:1px solid #444; padding:15px; margin-bottom:20px; border-radius:8px; }
+.calculator div { margin:8px 0; }
+.calculator label { display:inline-block; width:100px; }
+.calculator input[type="number"], .calculator select { margin-left:10px; border-radius:4px; border:1px solid #666; background:#222; color:#fff; text-align:center; }
+#caloriesOutput { font-weight:bold; margin-top:10px; }
+.days { display:flex; justify-content:space-between; margin-bottom:10px; }
+.day-btn { flex:1; margin:2px; padding:6px 0; border-radius:6px; border:none; cursor:pointer; color:#fff; }
+.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); justify-content:center; align-items:center; }
+.modal-content { background:#222; padding:20px; border-radius:8px; width:90%; max-width:400px; max-height:80%; overflow:auto; }
+.modal h3 { margin-top:0; }
+.modal label { display:block; margin:6px 0; }
+.edit-buttons { text-align:center; margin-top:10px; }
+.edit-buttons button { margin:0 5px; }
+.backup-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
 </style>
 </head>
 <body>
 
 <h1>Workout Tracker</h1>
 
-<!-- Calorie Calculator -->
 <div class="calculator">
   <h2>Calorie Calculator</h2>
-  <div>
-    <label>Weight (kg):</label>
-    <input type="number" id="weight" min="0">
-  </div>
-  <div>
-    <label>Height (cm):</label>
-    <input type="number" id="height" min="0">
-  </div>
-  <div>
-    <label>Gender:</label>
+  <div><label>Weight (kg):</label><input type="number" id="weight" min="0"></div>
+  <div><label>Height (cm):</label><input type="number" id="height" min="0"></div>
+  <div><label>Gender:</label>
     <select id="gender">
       <option value="male">Male</option>
       <option value="female">Female</option>
@@ -51,19 +46,21 @@
   </div>
   <button onclick="calculateCalories()">Calculate</button>
   <div id="caloriesOutput"></div>
+  <div>
+    <label>Custom Intake:</label>
+    <input type="number" id="customCalories" min="0" onchange="saveAll()">
+    <span> / <span id="calculatedCalories">0</span> kcal</span>
+  </div>
 </div>
 
-<!-- Day Selector -->
 <div class="days" id="daySelector"></div>
-
-<!-- Workout List -->
 <ul id="workoutList"></ul>
 
-<!-- Buttons -->
-<button onclick="toggleEdit()" id="editBtn">Edit List</button>
-<button onclick="toggleEditDays()" id="editDaysBtn">Edit Days</button>
+<div class="edit-buttons">
+  <button onclick="toggleEdit()" id="editBtn">Edit List</button>
+  <button onclick="toggleEditDays()" id="editDaysBtn">Edit Days</button>
+</div>
 
-<!-- Edit Days Modal -->
 <div class="modal" id="daysModal">
   <div class="modal-content">
     <h3>Edit Workouts for <span id="modalDayName"></span></h3>
@@ -73,150 +70,211 @@
   </div>
 </div>
 
-<!-- Backup -->
 <div class="backup-buttons">
   <button onclick="backupData()">Backup Data</button>
   <button onclick="restoreData()">Restore Data</button>
 </div>
 
 <script>
-const dayColors = {
-  "Monday":"#e74c3c",
-  "Tuesday":"#e67e22",
-  "Wednesday":"#f1c40f",
-  "Thursday":"#2ecc71",
-  "Friday":"#3498db",
-  "Saturday":"#9b59b6",
-  "Sunday":"#fd79a8"
-};
-const days = Object.keys(dayColors);
-let workouts = JSON.parse(localStorage.getItem("workouts")) || [
-  { reps:10, sets:3, name:"Dumbbell Curls" },
-  { reps:10, sets:3, name:"Bench Presses" }
+const dayColors={ "MON":"#e74c3c","TUE":"#e67e22","WED":"#f1c40f","THU":"#2ecc71","FRI":"#3498db","SAT":"#9b59b6","SUN":"#fd79a8" };
+const days=Object.keys(dayColors);
+const groupTypes=["Arm","Back","Chest","Core","Legs","Neck","Shoulders"];
+let workouts=JSON.parse(localStorage.getItem("workouts"))||[
+  {reps:10, sets:3, name:"Dumbbell Curls", type:"Workout", group:"Arm"},
+  {reps:30, sets:0, name:"Running", type:"Cardio", group:""}
 ];
-let calorieData = JSON.parse(localStorage.getItem("calorieData")) || {};
-let dayAssignments = JSON.parse(localStorage.getItem("dayAssignments")) || {};
-let currentDay = days[0];
-let editMode = false;
-let editDaysMode = false;
-let tempAssignments = {};
+let calorieData=JSON.parse(localStorage.getItem("calorieData"))||{};
+let dayAssignments=JSON.parse(localStorage.getItem("dayAssignments"))||{};
+let currentDay=days[0], editMode=false, editDaysMode=false, tempAssignments={};
 
-const list = document.getElementById("workoutList");
-const daySelectorDiv = document.getElementById("daySelector");
-const editBtn = document.getElementById("editBtn");
-const editDaysBtn = document.getElementById("editDaysBtn");
-const daysModal = document.getElementById("daysModal");
-const modalDayName = document.getElementById("modalDayName");
-const modalWorkoutCheckboxes = document.getElementById("modalWorkoutCheckboxes");
+const list=document.getElementById("workoutList");
+const daySelectorDiv=document.getElementById("daySelector");
+const editBtn=document.getElementById("editBtn");
+const editDaysBtn=document.getElementById("editDaysBtn");
+const daysModal=document.getElementById("daysModal");
+const modalDayName=document.getElementById("modalDayName");
+const modalWorkoutCheckboxes=document.getElementById("modalWorkoutCheckboxes");
+const customCaloriesInput=document.getElementById("customCalories");
+const calculatedCaloriesSpan=document.getElementById("calculatedCalories");
 
-// --- Render Days Buttons ---
-function renderDayButtons() {
-  daySelectorDiv.innerHTML = "";
-  days.forEach(day => {
-    const btn = document.createElement("button");
-    btn.textContent = day;
-    btn.className = "day-btn";
-    btn.style.background = day === currentDay ? dayColors[day] : "#333";
-    btn.onclick = ()=>{currentDay = day; render();};
+function renderDayButtons(){
+  daySelectorDiv.innerHTML="";
+  days.forEach(day=>{
+    const btn=document.createElement("button");
+    btn.textContent=day;
+    btn.className="day-btn";
+    btn.style.background=day===currentDay?dayColors[day]:"#333";
+    btn.onclick=()=>{currentDay=day; render();};
     daySelectorDiv.appendChild(btn);
   });
 }
 
-// --- Render Workouts ---
-function render() {
-  renderDayButtons();
-  list.innerHTML = "";
-  list.innerHTML += `<li class="header"><span style="width:60px;">Reps</span><span style="width:60px;">Sets</span>Exercise</li>`;
-  workouts.forEach((w,i)=>{
-    const li = document.createElement("li");
-    if(dayAssignments[currentDay]?.includes(i)) li.style.background = dayColors[currentDay];
-    li.innerHTML = editMode ? 
-      `<input type="number" min="0" value="${w.reps}" onchange="updateReps(${i},this.value)">
-       <input type="number" min="0" value="${w.sets}" onchange="updateSets(${i},this.value)">
-       <input type="text" value="${w.name}" onchange="updateName(${i},this.value)">
-       <button class="small-btn" onclick="removeWorkout(${i})">X</button>` :
-      `<input type="number" min="0" value="${w.reps}" onchange="updateReps(${i},this.value)">
-       <input type="number" min="0" value="${w.sets}" onchange="updateSets(${i},this.value)">
-       ${w.name}`;
-    list.appendChild(li);
+function sortWorkouts(ws){
+  return ws.sort((a,b)=>{
+    if(a.type!==b.type) return a.type==="Workout"? -1:1;
+    if(a.type==="Workout" && b.type==="Workout"){
+      if(a.group!==b.group){if(!a.group) return 1; if(!b.group) return -1; return a.group.localeCompare(b.group);}
+    }
+    return a.name.localeCompare(b.name);
   });
+}
+
+function createWorkoutLi(w,i){
+  const li=document.createElement("li");
   if(editMode){
-    const liAdd = document.createElement("li");
-    liAdd.innerHTML = `<button class="add-btn" onclick="addWorkout()">+ Add Workout</button>`;
+    if(w.type==="Workout"){
+      li.innerHTML=`<input type="number" min="0" value="${w.reps}" onchange="updateReps(${i},this.value)">
+        <input type="number" min="0" value="${w.sets}" onchange="updateSets(${i},this.value)">
+        <input type="text" value="${w.name}" onchange="updateName(${i},this.value)">
+        <select onchange="updateType(${i},this.value)">
+          <option value="Workout" ${w.type==="Workout"?"selected":""}>Workout</option>
+          <option value="Cardio" ${w.type==="Cardio"?"selected":""}>Cardio</option>
+        </select>
+        <select onchange="updateGroup(${i},this.value)">
+          <option value="">None</option>
+          ${groupTypes.map(g=>`<option value="${g}" ${w.group===g?"selected":""}>${g}</option>`).join("")}
+        </select>
+        <button class="small-btn" onclick="removeWorkout(${i})">X</button>`;
+    } else {
+      li.innerHTML=`<input type="number" min="0" value="${w.reps}" placeholder="Hours" onchange="updateReps(${i},this.value)">
+        <input type="number" min="0" value="${w.sets}" placeholder="Minutes" onchange="updateSets(${i},this.value)">
+        <input type="text" value="${w.name}" onchange="updateName(${i},this.value)">
+        <select onchange="updateType(${i},this.value)">
+          <option value="Workout" ${w.type==="Workout"?"selected":""}>Workout</option>
+          <option value="Cardio" ${w.type==="Cardio"?"selected":""}>Cardio</option>
+        </select>
+        <button class="small-btn" onclick="removeWorkout(${i})">X</button>`;
+    }
+  } else {
+    li.innerHTML=w.type==="Workout"?
+      `<input type="number" min="0" value="${w.reps}" onchange="updateReps(${i},this.value)">
+      <input type="number" min="0" value="${w.sets}" onchange="updateSets(${i},this.value)">
+      Workout / ${w.group? w.group+" / ":""}${w.name}`:
+      `<input type="number" min="0" value="${w.reps}" onchange="updateReps(${i},this.value)">
+      <input type="number" min="0" value="${w.sets}" onchange="updateSets(${i},this.value)">
+      Cardio / ${w.name}`;
+  }
+  if(dayAssignments[currentDay]?.includes(i)) li.style.background=dayColors[currentDay];
+  return li;
+}
+
+function render(){
+  renderDayButtons();
+  list.innerHTML="";
+  const workoutItems=sortWorkouts(workouts.filter(w=>w.type==="Workout"));
+  const cardioItems=sortWorkouts(workouts.filter(w=>w.type==="Cardio"));
+
+  if(workoutItems.length){
+    const header=document.createElement("li"); header.className="header";
+    header.innerHTML=`<span style="width:60px;">Reps</span><span style="width:60px;">Sets</span>Workout`;
+    list.appendChild(header);
+    workoutItems.forEach(w=>list.appendChild(createWorkoutLi(w,workouts.indexOf(w))));
+  }
+
+  if(cardioItems.length){
+    const header=document.createElement("li"); header.className="header";
+    header.innerHTML=`<span style="width:60px;">Hours</span><span style="width:60px;">Minutes</span>Cardio`;
+    list.appendChild(header);
+    cardioItems.forEach(w=>list.appendChild(createWorkoutLi(w,workouts.indexOf(w))));
+  }
+
+  if(editMode){
+    const liAdd=document.createElement("li");
+    liAdd.innerHTML=`<button class="add-btn" onclick="addWorkout()">+ Add Workout</button>`;
     list.appendChild(liAdd);
   }
+
+  updateCaloriesDisplay();
   saveAll();
 }
 
-// --- Edit workouts functions ---
-function toggleEdit(){ editMode=!editMode; editBtn.textContent = editMode?"Done":"Edit List"; render();}
-function addWorkout(){ workouts.push({reps:0,sets:0,name:"New Exercise"}); render();}
+function toggleEdit(){ editMode=!editMode; editBtn.textContent=editMode?"Done":"Edit List"; render();}
+function addWorkout(){ workouts.push({reps:0,sets:0,name:"New Exercise",type:"Workout",group:""}); render();}
 function removeWorkout(i){ workouts.splice(i,1); render();}
-function updateReps(i,v){ workouts[i].reps = Math.max(0,Number(v)); saveAll();}
-function updateSets(i,v){ workouts[i].sets = Math.max(0,Number(v)); saveAll();}
+function updateReps(i,v){ workouts[i].reps=Math.max(0,Number(v)); saveAll();}
+function updateSets(i,v){ workouts[i].sets=Math.max(0,Number(v)); saveAll();}
 function updateName(i,v){ workouts[i].name=v; saveAll();}
+function updateType(i,v){ workouts[i].type=v; if(v==="Cardio") workouts[i].group=""; render(); saveAll();}
+function updateGroup(i,v){ workouts[i].group=v; render(); saveAll();}
 
-// --- Calorie calculator ---
 function calculateCalories(){
-  const weight = Number(document.getElementById("weight").value);
-  const height = Number(document.getElementById("height").value);
-  const gender = document.getElementById("gender").value;
-  if(!weight || !height){document.getElementById("caloriesOutput").textContent="Please enter weight and height.";return;}
-  let calories = gender==="male"?10*weight+6.25*height-5*25+5:10*weight+6.25*height-5*25-161;
-  document.getElementById("caloriesOutput").textContent=`Estimated daily calories: ${Math.round(calories)} kcal`;
+  const weight=Number(document.getElementById("weight").value);
+  const height=Number(document.getElementById("height").value);
+  const gender=document.getElementById("gender").value;
+  if(!weight || !height){document.getElementById("caloriesOutput").textContent="Enter weight & height"; return;}
+  let calories=gender==="male"?10*weight+6.25*height-5*25+5:10*weight+6.25*height-5*25-161;
   calorieData={weight,height,gender,calories};
+  updateCaloriesDisplay();
   saveAll();
 }
+
+function updateCaloriesDisplay(){
+  document.getElementById("caloriesOutput").textContent=`~Daily calories: ${customCaloriesInput.value||0} / ${Math.round(calorieData.calories||0)} kcal`;
+}
+
+customCaloriesInput.addEventListener("input",()=>{ 
+  updateCaloriesDisplay(); 
+  saveAll(); 
+});
 
 // --- Edit Days Modal ---
 function toggleEditDays(){
-  editDaysMode = true;
-  tempAssignments = JSON.parse(JSON.stringify(dayAssignments));
-  modalDayName.textContent = currentDay;
+  editDaysMode=true;
+  tempAssignments=JSON.parse(JSON.stringify(dayAssignments));
+  modalDayName.textContent=currentDay;
   modalWorkoutCheckboxes.innerHTML="";
   workouts.forEach((w,i)=>{
-    const checked = tempAssignments[currentDay]?.includes(i)?"checked":"";
-    modalWorkoutCheckboxes.innerHTML += `<label><input type="checkbox" value="${i}" ${checked}> ${w.name}</label>`;
+    const checked=tempAssignments[currentDay]?.includes(i)?"checked":"";
+    modalWorkoutCheckboxes.innerHTML+=`<label><input type="checkbox" value="${i}" ${checked}> ${w.name}</label>`;
   });
   daysModal.style.display="flex";
 }
+
 function saveDayAssignments(){
-  const checkedBoxes = [...modalWorkoutCheckboxes.querySelectorAll("input:checked")].map(cb=>Number(cb.value));
-  tempAssignments[currentDay]=checkedBoxes;
-  dayAssignments = tempAssignments;
-  daysModal.style.display="none";
-  editDaysMode=false;
+  const checked=[...modalWorkoutCheckboxes.querySelectorAll("input:checked")].map(cb=>Number(cb.value));
+  tempAssignments[currentDay]=checked;
+  dayAssignments=tempAssignments;
+  daysModal.style.display="none"; 
+  editDaysMode=false; 
   render();
 }
-function cancelDayAssignments(){ daysModal.style.display="none"; editDaysMode=false; render();}
 
-// --- Backup/Restore ---
+function cancelDayAssignments(){ 
+  daysModal.style.display="none"; 
+  editDaysMode=false; 
+  render(); 
+}
+
+// --- Backup / Restore ---
 function backupData(){
-  const data = {workouts,calorieData,dayAssignments};
-  const blob = new Blob([JSON.stringify(data, null,2)], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href=url; a.download="workout_backup.json"; a.click();
+  const data={workouts, calorieData, dayAssignments, customCalories:customCaloriesInput.value};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a"); 
+  a.href=url; 
+  a.download="workout_backup.json"; 
+  a.click(); 
   URL.revokeObjectURL(url);
 }
+
 function restoreData(){
-  const input = document.createElement("input");
-  input.type="file";
+  const input=document.createElement("input");
+  input.type="file"; 
   input.accept=".json";
-  input.onchange = e=>{
-    const file = e.target.files[0];
+  input.onchange=e=>{
+    const file=e.target.files[0]; 
     if(!file) return;
-    const reader = new FileReader();
-    reader.onload = e=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
       try{
-        const data = JSON.parse(e.target.result);
+        const data=JSON.parse(e.target.result);
         workouts=data.workouts||[];
         calorieData=data.calorieData||{};
         dayAssignments=data.dayAssignments||{};
-        document.getElementById("weight").value = calorieData.weight||"";
-        document.getElementById("height").value = calorieData.height||"";
-        document.getElementById("gender").value = calorieData.gender||"male";
-        if(calorieData.calories) document.getElementById("caloriesOutput").textContent=`Estimated daily calories: ${Math.round(calorieData.calories)} kcal`;
+        customCaloriesInput.value=data.customCalories||"";
+        document.getElementById("weight").value=calorieData.weight||"";
+        document.getElementById("height").value=calorieData.height||"";
+        document.getElementById("gender").value=calorieData.gender||"male";
         render();
       }catch(err){alert("Invalid file");}
     };
@@ -225,18 +283,20 @@ function restoreData(){
   input.click();
 }
 
-// --- Save All ---
+// --- Save all data to localStorage ---
 function saveAll(){
-  localStorage.setItem("workouts",JSON.stringify(workouts));
-  localStorage.setItem("calorieData",JSON.stringify(calorieData));
-  localStorage.setItem("dayAssignments",JSON.stringify(dayAssignments));
+  localStorage.setItem("workouts", JSON.stringify(workouts));
+  localStorage.setItem("calorieData", JSON.stringify(calorieData));
+  localStorage.setItem("dayAssignments", JSON.stringify(dayAssignments));
+  localStorage.setItem("customCalories", customCaloriesInput.value||"");
 }
 
-// --- Restore on load ---
-window.onload = ()=>{
-  if(calorieData.weight) document.getElementById("weight").value = calorieData.weight;
-  if(calorieData.height) document.getElementById("height").value = calorieData.height;
-  if(calorieData.gender) document.getElementById("gender").value = calorieData.gender;
+// --- Load data on page load ---
+window.onload=()=>{
+  if(calorieData.weight) document.getElementById("weight").value=calorieData.weight;
+  if(calorieData.height) document.getElementById("height").value=calorieData.height;
+  if(calorieData.gender) document.getElementById("gender").value=calorieData.gender;
+  customCaloriesInput.value=localStorage.getItem("customCalories")||"";
   render();
 };
 </script>
