@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workout Tracker & Calorie Calculator</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; }
+    h1 { text-align: center; margin-bottom: 20px; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    li { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+    li.header { font-weight: bold; }
+    input[type="number"], input[type="text"], select { width: 60px; text-align: center; }
+    input[type="text"] { flex: 1; }
+    button { margin: 20px auto; padding: 10px 20px; border: none; border-radius: 8px; background: #007aff; color: white; font-size: 16px; display: block; }
+    .small-btn { padding: 5px 10px; font-size: 14px; background: #ff3b30; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    .add-btn { background: #34c759; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+    .calculator { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 8px; }
+    .calculator label { margin-right: 5px; }
+    .calculator div { margin: 8px 0; }
+    #caloriesOutput { font-weight: bold; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Workout Goals</h1>
+
+  <!-- Calorie Calculator -->
+  <div class="calculator">
+    <h2>Daily Calorie Calculator</h2>
+    <div>
+      <label>Weight (kg):</label>
+      <input type="number" id="weight" min="0">
+    </div>
+    <div>
+      <label>Height (cm):</label>
+      <input type="number" id="height" min="0">
+    </div>
+    <div>
+      <label>Gender:</label>
+      <select id="gender">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+    </div>
+    <button onclick="calculateCalories()">Calculate</button>
+    <div id="caloriesOutput"></div>
+  </div>
+
+  <!-- Workout List -->
+  <ul id="workoutList"></ul>
+
+  <button onclick="toggleEdit()" id="editBtn">Edit List</button>
+
+  <script>
+    // --- Workout Tracker ---
+    let editMode = false;
+    const defaultWorkouts = [
+      { reps: 10, sets: 3, name: "Dumbbell Curls" },
+      { reps: 10, sets: 3, name: "Bench Presses" }
+    ];
+    let workouts = JSON.parse(localStorage.getItem("workouts")) || defaultWorkouts;
+
+    const list = document.getElementById("workoutList");
+    const editBtn = document.getElementById("editBtn");
+
+    function render() {
+      list.innerHTML = "";
+
+      // Header row
+      list.innerHTML += `<li class="header"><span style="width:60px;">Reps</span><span style="width:60px;">Sets</span>Exercise</li>`;
+
+      workouts.forEach((w, i) => {
+        if (editMode) {
+          list.innerHTML += `
+            <li>
+              <input type="number" min="0" value="${w.reps}" onchange="updateReps(${i}, this.value)">
+              <input type="number" min="0" value="${w.sets}" onchange="updateSets(${i}, this.value)">
+              <input type="text" value="${w.name}" onchange="updateName(${i}, this.value)">
+              <button class="small-btn" onclick="removeWorkout(${i})">X</button>
+            </li>`;
+        } else {
+          list.innerHTML += `
+            <li>
+              <input type="number" min="0" value="${w.reps}" onchange="updateReps(${i}, this.value)">
+              <input type="number" min="0" value="${w.sets}" onchange="updateSets(${i}, this.value)">
+              ${w.name}
+            </li>`;
+        }
+      });
+
+      if (editMode) {
+        list.innerHTML += `
+          <li>
+            <button class="add-btn" onclick="addWorkout()">+ Add Workout</button>
+          </li>`;
+      }
+
+      saveWorkouts();
+    }
+
+    function toggleEdit() {
+      editMode = !editMode;
+      editBtn.textContent = editMode ? "Done" : "Edit List";
+      render();
+    }
+
+    function addWorkout() {
+      workouts.push({ reps: 0, sets: 0, name: "New Exercise" });
+      render();
+    }
+
+    function removeWorkout(i) {
+      workouts.splice(i, 1);
+      render();
+    }
+
+    function updateReps(i, value) {
+      workouts[i].reps = Math.max(0, Number(value));
+      saveWorkouts();
+    }
+
+    function updateSets(i, value) {
+      workouts[i].sets = Math.max(0, Number(value));
+      saveWorkouts();
+    }
+
+    function updateName(i, value) {
+      workouts[i].name = value;
+      saveWorkouts();
+    }
+
+    function saveWorkouts() {
+      localStorage.setItem("workouts", JSON.stringify(workouts));
+    }
+
+    // --- Calorie Calculator ---
+    function calculateCalories() {
+      const weight = Number(document.getElementById("weight").value);
+      const height = Number(document.getElementById("height").value);
+      const gender = document.getElementById("gender").value;
+
+      if (!weight || !height) {
+        document.getElementById("caloriesOutput").textContent = "Please enter weight and height.";
+        return;
+      }
+
+      // Mifflin-St Jeor Equation (age = 25 default)
+      let calories;
+      if (gender === "male") {
+        calories = 10 * weight + 6.25 * height - 5 * 25 + 5;
+      } else {
+        calories = 10 * weight + 6.25 * height - 5 * 25 - 161;
+      }
+
+      document.getElementById("caloriesOutput").textContent = `Estimated daily calories: ${Math.round(calories)} kcal`;
+
+      // Save calorie inputs and result
+      localStorage.setItem("calorieData", JSON.stringify({
+        weight, height, gender, calories
+      }));
+    }
+
+    // Restore calorie data on load
+    const savedCalories = JSON.parse(localStorage.getItem("calorieData"));
+    if (savedCalories) {
+      document.getElementById("weight").value = savedCalories.weight;
+      document.getElementById("height").value = savedCalories.height;
+      document.getElementById("gender").value = savedCalories.gender;
+      document.getElementById("caloriesOutput").textContent = `Estimated daily calories: ${Math.round(savedCalories.calories)} kcal`;
+    }
+
+    render();
+  </script>
+</body>
+</html>
